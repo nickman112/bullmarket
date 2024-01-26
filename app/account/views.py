@@ -8,6 +8,7 @@ from payment.models import ShippingAddress
 from payment.models import Order, OrderItem
 
 from store.models import Product
+from store.forms import ProductForm
 
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
@@ -28,7 +29,7 @@ from django.contrib.auth.decorators import login_required
 
 from django.contrib import messages
 
-
+from .models import UserProfile
 
 
 def register(request):
@@ -42,10 +43,9 @@ def register(request):
         if form.is_valid():
 
             user = form.save()
-
-            user.is_active = False
-
-            user.save()
+            user_profile = user.userprofile
+            user_profile.is_verified = False  # or True, depending on your logic
+            user_profile.save()
 
             # Email verification setup (template)
 
@@ -63,7 +63,6 @@ def register(request):
             })
 
             user.email_user(subject=subject, message=message)
-
 
             return redirect('email-verification-sent')
 
@@ -184,14 +183,11 @@ def dashboard(request):
     return render(request, 'account/dashboard.html')
 
 
-
-
 @login_required(login_url='my-login')
 def profile_management(request):
-
-    # Updating our user's username and email
-
     user_form = UpdateUserForm(instance=request.user)
+    user_profile = UserProfile.objects.get(user=request.user)
+    is_verified = user_profile.is_verified
 
     if request.method == 'POST':
 
@@ -207,7 +203,7 @@ def profile_management(request):
 
 
 
-    context = {'user_form':user_form}
+    context = {'user_form':user_form, 'is_verified': is_verified }
 
     return render(request, 'account/profile-management.html', context=context)
 
@@ -253,9 +249,10 @@ def track_listings(request):
 
     try:
 
-        listings = Product.objects.filter(seller=request.user.email)
+        listings = Product.objects.filter(seller=request.user.username)
         context = {'listings':listings}
 
+        print(listings)
 
         return render(request, 'account/track-listings.html', context=context)
 
@@ -273,8 +270,18 @@ def delete_listing(request, listing_id):
     return render(request, 'delete_listing_confirm.html', {'listing': listing})
 
 
+@login_required
+def edit_listing(request, listing_id):
+    product = get_object_or_404(Product, id=listing_id, seller=request.user.username)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('account:track-listings')
+    else:
+        form = ProductForm(instance=product)
 
-
+    return render(request, 'store/edit-product.html', {'form': form})
 
 
 

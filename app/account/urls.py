@@ -2,7 +2,6 @@ from django.urls import path
 
 from . import views
 
-
 from django.contrib.auth import views as auth_views
 
 
@@ -17,8 +16,6 @@ urlpatterns = [
     # Email verification URL's
 
     path('email-verification/<str:uidb64>/<str:token>/', views.email_verification, name='email-verification'),
-
-
     path('email-verification-sent', views.email_verification_sent, name='email-verification-sent'),
 
 
@@ -42,9 +39,7 @@ urlpatterns = [
     # Dashboard / profile urls
 
     path('dashboard', views.dashboard, name='dashboard'),
-
     path('profile-management', views.profile_management, name='profile-management'),
-
     path('delete-account', views.delete_account, name='delete-account'),
 
 
@@ -85,6 +80,8 @@ urlpatterns = [
 
 
     path('delete_listing/<int:listing_id>/', views.delete_listing, name='delete_listing'),
+
+    path('edit_listing/<int:listing_id>/', views.edit_listing, name='edit_listing'),
 
 ]
 
