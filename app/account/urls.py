@@ -83,6 +83,7 @@ urlpatterns = [
 
     path('track-listings', views.track_listings, name='track-listings'),
 
+    path('edit-listing/<int:listing_id>', views.edit_listing, name='edit_listing'),
 
     path('delete_listing/<int:listing_id>/', views.delete_listing, name='delete_listing'),
 

@@ -272,7 +272,14 @@ def delete_listing(request, listing_id):
 
     return render(request, 'delete_listing_confirm.html', {'listing': listing})
 
-
+def edit_listing(request, listing_id):
+    listing = get_object_or_404(Product, id=listing_id)
+    print(listing)
+    
+    if request.method == 'POST':
+        return render (request, 'account/edit-listing.html', {'listing': listing})
+    else:
+        return render(request, 'account/edit-listing.html', {'listing': listing})
 
 
 
